@@ -61,7 +61,8 @@ test_transform = transforms.Compose([
 def collate_fn(batch):
     # print(batch[:10])
     x = torch.stack([torch.tensor(data_item[0]) for data_item in batch])
-    y = [int(data_item[2]) for data_item in batch]
+    y = [int(data_item[2]) for data_item in batch]\
+    y = torch.tensor(y)
     # return x[:32], y
     return x, y
     
@@ -162,7 +163,7 @@ def evaluate(model):
         # print(torch.argmax(prediction, dim=1), label)
         # print(f'Accuracy : {(torch.sum(torch.argmax(prediction, dim=1) == label)/len(label))*100.0}%')
         # print(f'Accuracy : {get_accuracy(torch.argmax(prediction, dim=1).tolist(), label)}')
-            acc_list = accuracy(prediction.cpu(), torch.argmax(l_, dim=1).cpu(), topk=(1,5))
+            acc_list = accuracy(prediction.cpu(), label.cpu(), topk=(1,5))
             acc1.append(acc_list[0])
             acc5.append(acc_list[1])
     print('top1 =',torch.mean(torch.stack(acc1)))
