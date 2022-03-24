@@ -14,15 +14,11 @@ from torch.autograd import Variable
 import sys
 from tqdm import tqdm
 
-from movinets import MoViNet
-from movinets.config import _C
 from c3d_pytorch.C3D_model import C3D
 
 if (len(sys.argv)!=3):
     print('Usage : python3 eval.py [C3D, r21] weight_PATH')
     exit(0)
-
-
 # Train transform and other utils
 BATCH_SIZE = 16
 FRAME = 32
@@ -33,12 +29,12 @@ def tofloat(x):
 
 
 train_transform = transforms.Compose([
-                    # transforms.Lambda(lambda x: x / 255.0),
+                    transforms.Lambda(lambda x: x / 255.0),
                     #transforms.functional.uniform_temporal_subsample_repeated(32, (1,0), temporal_dim = 2),
                     tofloat,
                     transforms.Resize(224),
                     transforms.CenterCrop(224),
-                    transforms.Normalize((123, 116, 103), (58, 57, 57)),
+                    # transforms.Normalize((123, 116, 103), (58, 57, 57)),
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.ColorJitter(brightness=25/225),
                     transforms.RandomRotation(15)
@@ -46,12 +42,12 @@ train_transform = transforms.Compose([
 
 
 test_transform = transforms.Compose([
-                    # transforms.Lambda(lambda x: x / 255.0),
+                    transforms.Lambda(lambda x: x / 255.0),
                     #transforms.functional.uniform_temporal_subsample_repeated(32, (1,0), temporal_dim = 2),
                     tofloat,
                     transforms.Resize(224),
                     transforms.CenterCrop(224),
-                    transforms.Normalize((123, 116, 103), (58, 57, 57)),
+                    # transforms.Normalize((123, 116, 103), (58, 57, 57)),
                     #transforms.RandomHorizontalFlip(p=0.5),
                     #transforms.ColorJitter(brightness=25/225),
                     #transforms.RandomRotation(15)
@@ -63,24 +59,21 @@ test_transform = transforms.Compose([
 def collate_fn(batch):
     # print(batch[:10])
     x = torch.stack([torch.tensor(data_item[0]) for data_item in batch])
-    y = [int(data_item[2]) for data_item in batch]
+    y = [int(data_item[2]) for data_item in batch]\
     y = torch.tensor(y)
     # return x[:32], y
     return x, y
-    
-DUMMY = '../k400val_dummy'
-VALIDATION = '../k400val_pytorch'
-TRAIN = '../kinetics400_5per'
 
-# train_kinetics = datasets.Kinetics(TRAIN, frames_per_clip= FRAME, split='train', num_classes= '600', step_between_clips= FRAME*2, transform = train_transform,  download= False, num_download_workers= 1, num_workers= 80)
-# test_kinetics = datasets.Kinetics(VALIDATION, frames_per_clip= FRAME, split='val', num_classes= '600', step_between_clips= 2000000, transform = test_transform,  download= False, num_download_workers= 1, num_workers= 80)
-# train_ds = train_kinetics
-test_ds = datasets.Kinetics(VALIDATION, frames_per_clip= FRAME, split='val', num_classes= '600', step_between_clips= 2000000, transform = test_transform,  download= False, num_download_workers= 1, num_workers= 80)
-# train_dl = DataLoader(train_ds, collate_fn=collate_fn, batch_size = batch_size, shuffle = True);
+VALIDATION_UCF = 'ucf101'
+VALIDATION_HMDB = 'hmdb51'
+
+test_ucf = datasets.Kinetics(VALIDATION_HMDB, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = train_transform, download=False, num_workers= 80)
+test_hmdb51 = datasets.Kinetics(VALIDATION_UCF, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = train_transform, download=False, num_workers= 80)
+test_ds = torch.utils.data.ConcatDataset([test_ucf, test_hmdb51])
+
 test_dl = DataLoader(test_ds, collate_fn=collate_fn, batch_size = batch_size, shuffle = True);
 
-
-# Main code for network extraction 
+# Main code for network extraction
 torch.cuda.empty_cache()
 import warnings
 warnings.filterwarnings('ignore')
@@ -90,9 +83,6 @@ from mmaction.datasets import build_dataloader, build_dataset
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from mmaction.models import build_model
 from mmcv import Config, DictAction
-
-config = 'configs/recognition/swin/swin_base_patch244_window877_kinetics400_1k.py'
-checkpoint = '../swin_base_patch244_window877_kinetics400_1k.pth'
 
 DEVICE = 'cuda:0'
 SPATIAL_DIM = 224
@@ -161,7 +151,7 @@ def evaluate(model):
             video = size_changer(video, FRAME, 112)
             prediction = model(video)
         # l_ = victim(video)
-            print(f'Predicted class: {torch.argmax(prediction, dim=1)}, Teacher class: {torch.argmax(l_, dim=1)}, Actual label: {label}')
+            # print(f'Predicted class: {torch.argmax(prediction, dim=1)}, Teacher class: {torch.argmax(l_, dim=1)}, Actual label: {label}')
         # print(torch.argmax(prediction, dim=1), label)
         # print(f'Accuracy : {(torch.sum(torch.argmax(prediction, dim=1) == label)/len(label))*100.0}%')
         # print(f'Accuracy : {get_accuracy(torch.argmax(prediction, dim=1).tolist(), label)}')
@@ -172,25 +162,12 @@ def evaluate(model):
     print('top5 =',torch.mean(torch.stack(acc5)))
 
 
-## Load SwinT
-config = 'configs/recognition/swin/swin_base_patch244_window877_kinetics400_1k.py'
-checkpoint = '../swin_base_patch244_window877_kinetics400_1k.pth'
-cfg = Config.fromfile(config)
-
-
 if __name__ == '__main__':
     size_changer = torch.nn.AvgPool3d((1, 2, 2), stride=None, padding=0, ceil_mode=False)
     print('Usage : python3 eval.py [C3D, r21] weight_PATH')
     model_choice = sys.argv[1]
     adversary = torch.load(sys.argv[2])
     adversary.to(DEVICE)
-    model_victim = build_model(cfg.model, train_cfg=None, test_cfg=None)
-    # loading pretrained weights to victim
-    load_checkpoint(model_victim, checkpoint, map_location=DEVICE)
-    model_victim.to(DEVICE)
-    victim = MMActionModelWrapper(model_victim)
-    for param in victim.parameters():
-      param.requires_grad = False
-    victim.eval()
+
     print(f'Evaluating {sys.argv[1]} on k400val from the weights {sys.argv[2]}.\nConfiguartion: \nBATCH_SIZE={BATCH_SIZE}\nFRAMES{FRAME}')
     evaluate(adversary)
