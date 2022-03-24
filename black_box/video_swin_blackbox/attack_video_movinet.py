@@ -12,6 +12,8 @@ import torch.optim as optim
 from tqdm import tqdm
 import numpy as np
 import itertools
+from movinets import MoViNet
+from movinets.config import _C
 
 cudnn.enabled = True
 cudnn.benchmark = True
@@ -21,19 +23,19 @@ torch.cuda.empty_cache()
 
 ########## HYPERPARAMETERS ##########
 
-batch_size = 4
+batch_size = 12
 student_iter = 10
 generator_iter = 10
 experience_iter = 10
 num_zoge_directions = 5
 budget = 10000000
-num_classes = 400
+num_classes = 600
 
 budget_per_iter = batch_size * ((student_iter - 1) + (1 + num_zoge_directions) * generator_iter)
 total_num_iters = int(budget / budget_per_iter)
 
 lr_student = 0.001
-lr_generator = 0.00001
+lr_generator = 0.0001
 
 generator_input_dim = 50
 
@@ -42,8 +44,8 @@ smoothing_factor = 0.01
 ########## MODELS ##########
 
 # preparing teacher
-# teacher = PretrainedVideoSwinTransformer('checkpoints/swin_base_patch244_window877_kinetics400_1k.pth').to(device)
-teacher = MoviNet()
+teacher = MoViNet(_C.MODEL.MoViNetA2, causal = False, pretrained = True).to(device)
+# teacher = MoviNet()
 teacher.eval()
 for p in teacher.parameters():
     p.requires_grad = False
@@ -52,7 +54,7 @@ for p in teacher.parameters():
 student = ResNet3D(pretrained=False, n_classes=num_classes).to(device)
 student = torch.load('student.pth')
 # student = C3D().to(device)
-student_opt = optim.Adam(student.parameters(), lr=lr_student, weight_decay=5e-4)
+student_opt = optim.AdamW(student.parameters(), lr=lr_student)
 student.train()
 
 # preparing generator
