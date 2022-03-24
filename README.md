@@ -1,14 +1,18 @@
 # BOSCH's MODEL EXTRACTION ATTACK FOR VIDEO CLASSIFICATION
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1L42lRHxcjKM5e1PtGa_CBN6RPwCiblo9?authuser=1#scrollTo=Bsui9fpC8gd9) <br>
+Click on "Open in Colab" to open a sample notebook. <br> 
+Click here to read the final [report](report_final.pdf). <br>
 
 We present our work done on model extraction over Vision Transformers such as Video-Swin-T and MoViNeT-A2-Base on Video Action-Recognition tasks under Inter-IIT Tech Meet 10.0. We employ various video student models such as r3d, r(2+1)d and c3d. We also test out various classic techniques such as PRADA, MAZE and DFME.
 
 Deep learning models have found their place in various applications in today’s world. Companies monetize these models as a service available to the end-users over the web. In this context, stealing the knowledge stored within this trained model is an attractive proposition for competitors. A ‘clone’ model can be trained with the victim model’s predictions to bring it close to the ‘victim’ model and can be used for monetary gains or to mount further attacks to improve the clone’s performance. Our solution to this challenge of model extraction attacks on video classification models is based on knowledge distillation. The student model learns by minimizing the difference between the teacher’s and its output logits. In model extraction attacks, the student is replaced by the clone model we are trying to train, whereas the teacher is replaced by the victim model queried. However, model extraction attacks cannot be taken as distillation problems directly because (a) we do not have access to the teacher model architecture, due to which backpropagation through it is not possible (b) we only have access to output logits of the victim model.
 
-## Approach, <br>
+## Approach <br>
 
 ![extraction](https://user-images.githubusercontent.com/18577165/159977307-778795fb-199e-4580-a6ca-a22af4932d14.jpeg)
 
-## Experiments conducted, <br>
+## Experiments conducted <br>
+
 **Generating videos by stacking affine-transformed images** <br>
 <p align="center">
   <img width="460" height="300" src="https://user-images.githubusercontent.com/18577165/159978268-86766a67-0d12-4cc5-a4cf-d74871cf9130.gif">
