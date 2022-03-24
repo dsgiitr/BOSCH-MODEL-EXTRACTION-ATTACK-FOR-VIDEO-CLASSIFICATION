@@ -32,7 +32,7 @@ def tofloat(x):
   return x[:FRAMES].float()
   # return x.float()
 
-train_transform_swin = transforms.Compose([
+test_transform_swin = transforms.Compose([
                     #transforms.Lambda(lambda x: x / 255.0),
                     #transforms.functional.uniform_temporal_subsample_repeated(32, (1,0), temporal_dim = 2),
                     tofloat,
@@ -44,7 +44,7 @@ train_transform_swin = transforms.Compose([
                     #transforms.RandomRotation(15)
                   ])
 
-train_transform_movinet = transforms.Compose([
+test_transform_movinet = transforms.Compose([
                     transforms.Lambda(lambda x: x / 255.0),
                     #transforms.functional.uniform_temporal_subsample_repeated(32, (1,0), temporal_dim = 2),
                     tofloat,
@@ -63,10 +63,10 @@ def collate_fn(batch):
     # return x[:32], y
     return x, y
 
-VALIDATION = '../k400val_pytorch'
+VALIDATION = '../ucf101'
 
-train_kinetics_movinet = datasets.Kinetics(VALIDATION, frames_per_clip= FRAMES, split='val', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = train_transform_movinet,  download= False, num_download_workers= 1, num_workers= 80)
-train_kinetics_swin = datasets.Kinetics(VALIDATION, frames_per_clip= FRAMES, split='val', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = train_transform_swin,  download= False, num_download_workers= 1, num_workers= 80)
+train_kinetics_movinet = datasets.Kinetics(VALIDATION, frames_per_clip= FRAMES, split='train', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = test_transform_movinet,  download= False, num_download_workers= 1, num_workers= 80)
+train_kinetics_swin = datasets.Kinetics(VALIDATION, frames_per_clip= FRAMES, split='train', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = test_transform_swin,  download= False, num_download_workers= 1, num_workers= 80)
 
 #train_kinetics = datasets.Kinetics(VALIDATION, frames_per_clip= FRAMES, split='val', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = train_transform,  download= False, num_download_workers= 1, num_workers= 80)
 #train_kinetics = datasets.Kinetics("../k400samples", frames_per_clip= FRAMES, split='val', num_classes= '400', step_between_clips= STEPS_BETWEEN_CLIPS, transform = train_transform,  download= False, num_download_workers= 1, num_workers= 80)
@@ -178,7 +178,7 @@ if __name__ == '__main__':
       victim = MoViNet(_C.MODEL.MoViNetA2, causal = False, pretrained = True )
       victim.to(DEVICE)
       option = 1
-    
+
     for param in victim.parameters():
       param.requires_grad = False
     victim.eval()

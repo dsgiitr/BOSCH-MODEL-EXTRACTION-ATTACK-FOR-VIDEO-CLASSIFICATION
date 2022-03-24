@@ -14,7 +14,6 @@ from torch.autograd import Variable
 import sys
 from tqdm import tqdm
 
-from c3d_pytorch.C3D_model import C3D
 
 if (len(sys.argv)!=3):
     print('Usage : python3 eval.py [C3D, r21] weight_PATH')
@@ -59,7 +58,7 @@ test_transform = transforms.Compose([
 def collate_fn(batch):
     # print(batch[:10])
     x = torch.stack([torch.tensor(data_item[0]) for data_item in batch])
-    y = [int(data_item[2]) for data_item in batch]\
+    y = [int(data_item[2]) for data_item in batch]
     y = torch.tensor(y)
     # return x[:32], y
     return x, y
@@ -67,8 +66,8 @@ def collate_fn(batch):
 VALIDATION_UCF = 'ucf101'
 VALIDATION_HMDB = 'hmdb51'
 
-test_ucf = datasets.Kinetics(VALIDATION_HMDB, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = train_transform, download=False, num_workers= 80)
-test_hmdb51 = datasets.Kinetics(VALIDATION_UCF, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = train_transform, download=False, num_workers= 80)
+test_ucf = datasets.Kinetics(VALIDATION_HMDB, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = test_transform, download=False, num_workers= 80)
+test_hmdb51 = datasets.Kinetics(VALIDATION_UCF, split='train', frames_per_clip= FRAME, step_between_clips = 32, transform = test_transform, download=False, num_workers= 80)
 test_ds = torch.utils.data.ConcatDataset([test_ucf, test_hmdb51])
 
 test_dl = DataLoader(test_ds, collate_fn=collate_fn, batch_size = batch_size, shuffle = True);
@@ -146,15 +145,11 @@ def evaluate(model):
             #    break
             video = Variable(video.to(DEVICE), requires_grad=False)
             video = video.permute(0, 2, 1, 3, 4)
-            l_ = victim(video)
-            l_ = torch.nn.functional.gumbel_softmax(l_, tau=1, hard=False, eps=1e-10, dim=- 1)
             video = size_changer(video, FRAME, 112)
             prediction = model(video)
-        # l_ = victim(video)
+
             # print(f'Predicted class: {torch.argmax(prediction, dim=1)}, Teacher class: {torch.argmax(l_, dim=1)}, Actual label: {label}')
-        # print(torch.argmax(prediction, dim=1), label)
-        # print(f'Accuracy : {(torch.sum(torch.argmax(prediction, dim=1) == label)/len(label))*100.0}%')
-        # print(f'Accuracy : {get_accuracy(torch.argmax(prediction, dim=1).tolist(), label)}')
+
             acc_list = accuracy(prediction.cpu(), label.cpu(), topk=(1,5))
             acc1.append(acc_list[0])
             acc5.append(acc_list[1])
@@ -163,7 +158,6 @@ def evaluate(model):
 
 
 if __name__ == '__main__':
-    size_changer = torch.nn.AvgPool3d((1, 2, 2), stride=None, padding=0, ceil_mode=False)
     print('Usage : python3 eval.py [C3D, r21] weight_PATH')
     model_choice = sys.argv[1]
     adversary = torch.load(sys.argv[2])
