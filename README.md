@@ -1,4 +1,9 @@
 # BOSCH's MODEL EXTRACTION ATTACK FOR VIDEO CLASSIFICATION
+
+[<img width="50" height="50" src="https://avatars.githubusercontent.com/u/25608738?s=200&v=4">](https://github.com/dsgiitr)
+[<img width="50" height="50" src="https://avatars.githubusercontent.com/u/32266022?s=200&v=4">](https://github.com/vlgiitr) 
+<br>
+<br>
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1L42lRHxcjKM5e1PtGa_CBN6RPwCiblo9?authuser=1#scrollTo=Bsui9fpC8gd9) <br>
 Click on "Open in Colab" to open a sample notebook. <br> 
 Click here to read the [problem-statement](Documentation/problem_statement.pdf). <br>
@@ -239,6 +244,16 @@ The final experiment for Video Swin Transformer victim was using stacked affine-
 |-------|------|-----------------|-|
 |Video Swin Transformer| R(2+1)D|4.85|~1M|
 |MoViNet-A2 Base| R(2+1)D|4.13|~1M|
+
+## Contributers
+- [Apoorva Verma](https://github.com/apoorvaverma31)
+- [Harsh Kumar](https://github.com/ChanBong)
+- [Himank Sehgal](https://github.com/HimankSehgal)
+- [Kumar Devesh](https://github.com/kumar-devesh)
+- [Pranjal Gulati](https://github.com/DevPranjal)
+- [Rohan Mallick](https://github.com/r7rohan)
+- [Sahil Goyal](https://github.com/sahilg06)
+- [Sarthak Gupta](https://github.com/mr-sarthakgupta)
 
 
 ## Citations
