@@ -1,7 +1,9 @@
 # BOSCH's MODEL EXTRACTION ATTACK FOR VIDEO CLASSIFICATION
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1L42lRHxcjKM5e1PtGa_CBN6RPwCiblo9?authuser=1#scrollTo=Bsui9fpC8gd9) <br>
 Click on "Open in Colab" to open a sample notebook. <br> 
-Click here to read the final [report](report_final.pdf). <br>
+Click here to read the [problem-statement](Documentation/problem_statement.pdf). <br>
+Click here to read the final [report](Documentation/report_final.pdf). <br>
+Click here to read the final [presentation](Documentation/presentation_final.pdf). <br>
 
 We present our work done on model extraction over Vision Transformers such as Video-Swin-T and MoViNeT-A2-Base on Video Action-Recognition tasks under Inter-IIT Tech Meet 10.0. We employ various video student models such as r3d, r(2+1)d and c3d. We also test out various classic techniques such as PRADA, MAZE and DFME.
 
@@ -95,8 +97,8 @@ python3 code.py
 
 ## Datasets
 
-Datasets such as kinetics, ucf101 and hmdb51 can be downloaded from [here](https://drive.google.com/drive/folders/1Nz8wSjpfAT_-w6bu7ik-tkMgY_973--i?usp=sharing) 
-
+We have extracted 5% of balanced Kinetics-400 and Kinetics-600 training data and have uploaded it [here](https://www.kaggle.com/datasets/rohanmallick/kinetics-train-5per). <br>
+Datasets such as kinetics training data (5%), kinetics validation data, ucf101 and hmdb51 can be downloaded from [here](https://drive.google.com/drive/folders/1Nz8wSjpfAT_-w6bu7ik-tkMgY_973--i?usp=sharing).
 
 ## Extracted Weights
 
@@ -221,7 +223,7 @@ The final results for Video Swin Transformer victim were obtained using augmenta
 |Victim|Clone|Top-5 Accuracy|Number of Queries|
 |-------|------|-----------------|-|
 |Video Swin Transformer|R(2+1)D|54.8|~4L|
-|MoViNet-A2 Base|R(2+1)D|67.3|~4L|
+|MoViNet-A2 Base|R(2+1)D|50.4|~4L|
 
 ### Black Box setting
 |Technique|Top-5 Accuracy|Top-1 Accuracy|
